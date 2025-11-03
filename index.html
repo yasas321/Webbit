@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐦‍🔥 ᴅᴛᴇᴄ ᴍɪɴɪ ᴠ1 🐦‍🔥</title>
+<link rel="icon" type="image/jpeg" href="https://i.ibb.co/0yNXBqRt/IMG-20250909-WA0226.jpg" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root {
+            --primary: #0a0a1a;
+            --secondary: #121230;
+            --accent-blue: #00f7ff;
+            --accent-purple: #d400ff;
+            --text: #ffffff;
+            --text-secondary: #b0b0d0;
+            --glass: rgba(255, 255, 255, 0.05);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(65, 5, 120, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 247, 255, 0.1) 0%, transparent 20%);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 99999;
+            opacity: 1;
+            pointer-events: auto;
+            animation: fadeOut 0.6s ease forwards;
+            animation-delay: 5s;
+        }
+
+        .loading-container {
+            text-align: center;
+            max-width: 90%;
+            width: min(680px, 90%);
+            padding: 22px 26px;
+            border: 2px solid var(--accent-purple);
+            border-radius: 16px;
+            background: rgba(212, 0, 255, 0.08);
+            box-shadow: 0 0 25px rgba(212, 0, 255, 0.3), inset 0 0 10px rgba(0, 247, 255, 0.15);
+        }
+
+        .loading-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 0.04em;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        .loader {
+            display: flex;
+            justify-content: center;
+            margin: 14px auto 0;
+        }
+
+        .loader-dot {
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 50%;
+            margin: 0 6px;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .loader-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .loader-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            40% {
+                transform: translateY(-20px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; pointer-events: none; }
+        }
+
+        /* Header & Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: var(--glass);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeDown 0.8s forwards 5.5s;
+        }
+
+        @keyframes fadeDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: var(--transition);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 10%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 700px;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s forwards 5.8s;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .connect-button {
+            display: inline-block;
+            padding: 0.8rem 2.5rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: var(--primary);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            animation: buttonGlow 2.5s infinite alternate;
+        }
+
+        .connect-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--accent-purple), var(--accent-blue));
+            opacity: 0;
+            transition: var(--transition);
+            z-index: -1;
+        }
+
+        .connect-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 247, 255, 0.3), 0 5px 15px rgba(212, 0, 255, 0.3);
+        }
+
+        .connect-button:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes buttonGlow {
+            0% { box-shadow: 0 0 5px var(--accent-blue); }
+            50% { box-shadow: 0 0 15px var(--accent-blue), 0 0 25px var(--accent-purple); }
+            100% { box-shadow: 0 0 5px var(--accent-blue); }
+        }
+
+        /* Sections */
+        .section {
+            padding: 8rem 10%;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s forwards 0.5s;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 2px;
+        }
+
+        /* About Section */
+        .about-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s forwards 0.7s;
+        }
+
+        .about-card p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Commands Section */
+        .commands-section {
+            background: var(--secondary);
+        }
+
+        .commands-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .command-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 280px;
+            text-align: center;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(30px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-card:nth-child(1) { animation: fadeUp 1s forwards 0.4s; }
+        .command-card:nth-child(2) { animation: fadeUp 1s forwards 0.6s; }
+        .command-card:nth-child(3) { animation: fadeUp 1s forwards 0.8s; }
+        .command-card:nth-child(4) { animation: fadeUp 1s forwards 1s; }
+
+        .command-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 247, 255, 0.1), rgba(212, 0, 255, 0.1), transparent);
+            z-index: 0;
+            transform: rotate(45deg);
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .command-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 247, 255, 0.2);
+        }
+
+        .command-card:hover::before {
+            opacity: 1;
+            animation: shine 2s infinite;
+        }
+
+        .command-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .command-card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+            color: var(--accent-blue);
+        }
+
+        .command-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            font-size: 1rem;
+        }
+
+        /* Pair Code Section */
+        .pair-section {
+            background: linear-gradient(to bottom, #0a0a1a, #121230);
+            padding: 8rem 10%;
+        }
+
+        .pair-container {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .pair-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 320px;
+            text-align: center;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(30px);
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 1s forwards 0.6s;
+        }
+
+        .pair-card:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        .pair-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 247, 255, 0.1), rgba(212, 0, 255, 0.1), transparent);
+            z-index: 0;
+            transform: rotate(45deg);
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .pair-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 247, 255, 0.2);
+        }
+
+        .pair-card:hover::before {
+            opacity: 1;
+            animation: shine 2s infinite;
+        }
+
+        .pair-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pair-card h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+            color: var(--accent-blue);
+        }
+
+        .pair-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            font-size: 1rem;
+        }
+
+        .pair-button {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: var(--primary);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            animation: buttonGlow 2.5s infinite alternate;
+        }
+
+        .pair-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 247, 255, 0.3), 0 5px 15px rgba(212, 0, 255, 0.3);
+        }
+
+        /* AD CARD specific small tweaks */
+        .ad-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 20px;
+            border-radius: 16px;
+            max-width: 900px;
+            margin: 2rem auto;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+        .ad-card .ad-title {
+            font-size: 1.2rem;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+        }
+        .ad-card .ad-note {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        /* Community Section */
+        .community-section {
+            background: linear-gradient(to bottom, #0a0a1a, #121230);
+            padding: 8rem 10%;
+        }
+
+        .comment-box {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2.5rem;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1s forwards 0.7s;
+        }
+
+        .comment-box h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .comment-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .comment-inputs input, .comment-inputs textarea {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .comment-inputs input:focus, .comment-inputs textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+        }
+
+        .post-btn {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: var(--primary);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.1rem;
+            width: 100%;
+            margin-top: 0.5rem;
+            animation: buttonGlow 2.5s infinite alternate;
+        }
+
+        .post-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 247, 255, 0.3), 0 5px 15px rgba(212, 0, 255, 0.3);
+        }
+
+        .comment {
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border-left: 3px solid var(--accent-purple);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.5s forwards;
+            animation-delay: calc(var(--delay) * 0.1s);
+        }
+
+        .comment:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+        }
+
+        .reply {
+            margin-left: 3rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--accent-blue);
+            animation-delay: calc(var(--delay) * 0.15s);
+        }
+
+        .name {
+            font-weight: bold;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .name i {
+            color: var(--accent-purple);
+        }
+
+        .comment-text {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .reaction {
+            cursor: pointer;
+            color: var(--accent-purple);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .reaction:hover {
+            background: rgba(212, 0, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .reaction.liked {
+            color: #ff5252;
+            background: rgba(255, 82, 82, 0.1);
+        }
+
+        .delete-btn {
+            cursor: pointer;
+            color: #ff5252;
+            background: rgba(255, 82, 82, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 82, 82, 0.1);
+            transform: scale(1.05);
+        }
+
+        .reply-btn {
+            cursor: pointer;
+            color: var(--accent-blue);
+            background: rgba(0, 247, 255, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .reply-btn:hover {
+            background: rgba(0, 247, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .reply-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .reply-box input, .reply-box textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: inherit;
+        }
+
+        .reply-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .reply-buttons button {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .post-reply {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: var(--primary);
+        }
+
+        .cancel-reply {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .post-reply:hover {
+            transform: translateY(-2px);
+        }
+
+        .cancel-reply:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            opacity: 0.3;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 10%;
+            text-align: center;
+            background: var(--primary);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--glass);
+            color: var(--text);
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 247, 255, 0.3);
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Back to Top */
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            font-weight: bold;
+            z-index: 1000;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.3);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        /* Password Modal */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .password-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--secondary);
+            padding: 2.5rem;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--accent-purple);
+            box-shadow: 0 0 30px rgba(212, 0, 255, 0.5);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-blue);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--accent-blue);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-submit {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-purple));
+            color: var(--primary);
+        }
+
+        .modal-cancel {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--accent-purple);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                transform: rotate(45deg) translate(-50%, -50%);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: rotate(45deg) translate(50%, 50%);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                right: -100%;
+                flex-direction: column;
+                background: var(--glass);
+                backdrop-filter: blur(10px);
+                width: 70%;
+                height: calc(100vh - 80px);
+                padding: 2rem;
+                transition: var(--transition);
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .menu-btn {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section {
+                padding: 6rem 5%;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .command-card {
+                width: 100%;
+                max-width: 350px;
+            }
+
+            .pair-card {
+                width: 100%;
+                max-width: 350px;
+            }
+
+            .comment {
+                padding: 1.2rem;
+            }
+
+            .reply {
+                margin-left: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero {
+                padding: 0 5%;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .comment-box {
+                padding: 1.5rem;
+            }
+
+            .comment-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div id="loading-overlay" aria-live="polite">
+        <div class="loading-container">
+            <div class="loading-title">🐦‍🔥 ᴅᴛᴇᴄ ᴍɪɴɪ ᴠ1 🐦‍🔥</div>
+            <div class="loading-text">initializing bot services...</div>
+            <div class="loader">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Password Modal -->
+    <div class="password-modal" id="passwordModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Admin Verification</h2>
+            <input type="password" class="modal-input" id="adminPassword" placeholder="Enter admin password">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-submit" onclick="verifyPassword()">Submit</button>
+                <button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Animated Particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Header & Navigation -->
+    <header>
+        <a href="#" class="logo">DTEC MINI</a>
+        <nav>
+            <div class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+                <a href="#pair">Pair Codes</a>
+                <a href="#community">Community</a>
+            </div>
+            <div class="menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Welcome to <span>DTEC MINI</span></h1>
+            <p>Your ultimate WhatsApp assistant for media management, content downloads, automation, and more. Fast, secure, and user-friendly.</p>
+            <a href="https://dtecminiv1-c7999ba3c748.herokuapp.com/" class="connect-button">Pair Code</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <h2 class="section-title">About Bot</h2>
+        <div class="about-card">
+            <p>DTEC MINI is a cutting-edge WhatsApp assistant designed to revolutionize your messaging experience. With powerful features for media management, content downloads, and task automation, it's the ultimate tool for enhancing your WhatsApp usage.</p>
+            <p>Our bot provides seamless integration with WhatsApp, allowing you to download videos, manage media, get news updates, automate tasks, and much more - all within your favorite messaging app.</p>
+            <p>Built with advanced technology and a user-friendly interface, CHAMA MINI BOT ensures a smooth and efficient experience while maintaining the highest security standards.</p>
+        </div>
+    </section>
+
+    <!-- Pair Codes Section -->
+    <section id="pair" class="section pair-section">
+        <h2 class="section-title">Pair Codes</h2>
+        <div class="pair-container">
+            <div class="pair-card">
+                <div class="pair-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h4>Pair Code 01</h4>
+                <p>Use this code to pair your device with the bot</p>
+                <a href="https://dtecminiv1-c7999ba3c748.herokuapp.com/" class="pair-button">Pair Now</a>
+            </div>
+            <div class="pair-card">
+                <div class="pair-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h4>Pair Code 02</h4>
+                <p>Use this code to pair your device with the bot</p>
+                <a href="https://dtecminiv1-c7999ba3c748.herokuapp.com/" class="pair-button">Pair Now</a>
+            </div>
+        </div>
+
+        
+
+    </section>
+    
+    <!-- Community Section -->
+    <section id="community" class="section community-section">
+        <h2 class="section-title">Community Discussions</h2>
+        <div class="comment-box">
+            <h2><i class="fas fa-comments"></i> Join the Conversation</h2>
+            <div class="comment-inputs">
+                <input type="text" id="name" placeholder="Your Name">
+                <textarea id="comment" placeholder="Share your thoughts..."></textarea>
+                <button class="post-btn" onclick="postComment()"><i class="fas fa-paper-plane"></i> Post Comment</button>
+            </div>
+            <div id="comments"></div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <h2 class="section-title">Contact</h2>
+        <div class="contact-container">
+            <a href="https://wa.me/+94785316830?text=𝘏𝘌𝘠+Dileepa" class="connect-button"> Contact on WhatsApp</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-whatsapp"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-discord"></i></a>
+            </div>
+            <p class="copyright">© 2025 DTEC MINI. All rights reserved</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div id="backToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQsFzp9HY1KIwGIxg7cKNwm1K3ek1O5x4",
+            authDomain: "chamamini.firebaseapp.com",
+            databaseURL: "https://chamamini-default-rtdb.firebaseio.com",
+            projectId: "chamamini",
+            storageBucket: "chamamini.firebasestorage.app",
+            messagingSenderId: "732162045031",
+            appId: "1:732162045031:web:32b2dc20e8cfe19ad210c2",
+            measurementId: "G-DT8H6HRL00"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        
+        // Comment system functionality
+        let currentCommentId = null;
+        let currentUser = localStorage.getItem('commentUser') || '';
+        
+        function postComment(parentId = null) {
+            const name = document.getElementById("name").value.trim();
+            const comment = document.getElementById("comment").value.trim();
+            
+            if (!name || !comment) {
+                showMessage("Enter your name and comment!", "error");
+                return;
+            }
+            
+            // Save user for session
+            currentUser = name;
+            localStorage.setItem('commentUser', name);
+            
+            const newComment = db.ref("comments").push();
+            newComment.set({
+                name, 
+                text: comment, 
+                parentId, 
+                likes: 0, 
+                likedBy: {},
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            document.getElementById("comment").value = "";
+            
+            if (!parentId) {
+                showMessage("Comment posted successfully!", "success");
+            }
+        }
+        
+        function showMessage(message, type) {
+            const msgEl = document.createElement("div");
+            msgEl.className = `message ${type}`;
+            msgEl.textContent = message;
+            msgEl.style.position = "fixed";
+            msgEl.style.top = "20px";
+            msgEl.style.right = "20px";
+            msgEl.style.padding = "12px 20px";
+            msgEl.style.borderRadius = "10px";
+            msgEl.style.color = "#fff";
+            msgEl.style.zIndex = "10000";
+            msgEl.style.opacity = "0";
+            msgEl.style.transform = "translateY(-20px)";
+            msgEl.style.transition = "all 0.4s ease";
+            
+            if (type === "success") {
+                msgEl.style.background = "linear-gradient(45deg, #00c853, #64dd17)";
+            } else {
+                msgEl.style.background = "linear-gradient(45deg, #ff5252, #ff1744)";
+            }
+            
+            document.body.appendChild(msgEl);
+            
+            setTimeout(() => {
+                msgEl.style.opacity = "1";
+                msgEl.style.transform = "translateY(0)";
+            }, 10);
+            
+            setTimeout(() => {
+                msgEl.style.opacity = "0";
+                setTimeout(() => {
+                    document.body.removeChild(msgEl);
+                }, 500);
+            }, 3000);
+        }
+
+        db.ref("comments").on("value", snapshot => {
+            const commentsDiv = document.getElementById("comments");
+            commentsDiv.innerHTML = "";
+            const comments = snapshot.val();
+            if (comments) {
+                // Sort comments by timestamp
+                const sortedComments = Object.keys(comments)
+                    .map(id => ({ id, ...comments[id] }))
+                    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                // Render top-level comments
+                sortedComments.forEach((c, index) => {
+                    if (!c.parentId) {
+                        renderComment(c.id, c, commentsDiv, false, index);
+                    }
+                });
+            } else {
+                commentsDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No comments yet. Be the first to share your thoughts!</p>';
+            }
+        });
+
+        function renderComment(id, c, parentDiv, isReply=false, delayIndex=0) {
+            const div = document.createElement("div");
+            div.className = "comment" + (isReply ? " reply" : "");
+            div.style.setProperty("--delay", delayIndex);
+            
+            const hasLiked = c.likedBy && c.likedBy[currentUser];
+            
+            div.innerHTML = `
+                <div class="name">
+                    <i class="fas fa-user"></i> ${c.name}
+                </div>
+                <p class="comment-text">${c.text}</p>
+                <div class="comment-actions">
+                    <span class="reaction ${hasLiked ? 'liked' : ''}" onclick="likeComment('${id}')">
+                        <i class="fas fa-heart"></i> ${c.likes || 0}
+                    </span>
+                    <span class="reply-btn" onclick="showReplyBox('${id}')">
+                        <i class="fas fa-reply"></i> Reply
+                    </span>
+                    <span class="delete-btn" onclick="openPasswordModal('${id}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </span>
+                </div>
+                <div class="reply-box" id="replyBox-${id}">
+                    <input type="text" id="replyName-${id}" placeholder="Your Name" value="${currentUser}">
+                    <textarea id="replyText-${id}" placeholder="Your reply..."></textarea>
+                    <div class="reply-buttons">
+                        <button class="cancel-reply" onclick="hideReplyBox('${id}')">Cancel</button>
+                        <button class="post-reply" onclick="postReply('${id}')">Post Reply</button>
+                    </div>
+                </div>
+                <div id="replies-${id}"></div>
+            `;
+            parentDiv.appendChild(div);
+
+            // Render replies
+            const commentsRef = firebase.database().ref("comments");
+            commentsRef.once("value", snapshot => {
+                const allComments = snapshot.val();
+                if (allComments) {
+                    const repliesContainer = div.querySelector(`#replies-${id}`);
+                    const replies = Object.keys(allComments)
+                        .map(cid => ({ id: cid, ...allComments[cid] }))
+                        .filter(comment => comment.parentId === id)
+                        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    
+                    replies.forEach((reply, index) => {
+                        renderComment(reply.id, reply, repliesContainer, true, index);
+                    });
+                }
+            });
+        }
+
+        function showReplyBox(id) {
+            document.getElementById(`replyBox-${id}`).style.display = "block";
+        }
+
+        function hideReplyBox(id) {
+            document.getElementById(`replyBox-${id}`).style.display = "none";
+        }
+
+        function postReply(parentId) {
+            const name = document.getElementById(`replyName-${parentId}`).value.trim();
+            const text = document.getElementById(`replyText-${parentId}`).value.trim();
+            
+            if (!name || !text) {
+                showMessage("Enter your name and reply!", "error");
+                return;
+            }
+            
+            // Save user for session
+            currentUser = name;
+            localStorage.setItem('commentUser', name);
+            
+            const newReply = db.ref("comments").push();
+            newReply.set({ 
+                name, 
+                text, 
+                parentId, 
+                likes:0, 
+                likedBy:{},
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            document.getElementById(`replyText-${parentId}`).value = "";
+            hideReplyBox(parentId);
+            showMessage("Reply posted successfully!", "success");
+        }
+
+        function likeComment(id) {
+            if (!currentUser) {
+                const nameInput = document.getElementById("name");
+                if (nameInput && nameInput.value.trim()) {
+                    currentUser = nameInput.value.trim();
+                    localStorage.setItem('commentUser', currentUser);
+                } else {
+                    showMessage("Enter your name to like comments!", "error");
+                    return;
+                }
+            }
+            
+            const commentRef = db.ref("comments/" + id);
+            commentRef.once("value").then(snapshot => {
+                const c = snapshot.val();
+                if (!c) return;
+                
+                const likedBy = c.likedBy || {};
+                if (likedBy[currentUser]) {
+                    showMessage("You already liked this comment!", "error");
+                } else {
+                    const likes = (c.likes || 0) + 1;
+                    likedBy[currentUser] = true;
+                    commentRef.update({ likes, likedBy });
+                    
+                    // Add animation effect
+                    const heart = document.querySelector(`#comments .comment [onclick="likeComment('${id}')"]`);
+                    if (heart) {
+                        heart.classList.add("liked");
+                        heart.innerHTML = `<i class="fas fa-heart"></i> ${likes}`;
+                        
+                        // Create flying heart animation
+                        const flyingHeart = document.createElement("div");
+                        flyingHeart.innerHTML = '<i class="fas fa-heart" style="color: #ff5252;"></i>';
+                        flyingHeart.style.position = "absolute";
+                        flyingHeart.style.fontSize = "1.5rem";
+                        flyingHeart.style.zIndex = "100";
+                        flyingHeart.style.opacity = "1";
+                        flyingHeart.style.transition = "all 1s ease";
+                        document.body.appendChild(flyingHeart);
+                        
+                        const rect = heart.getBoundingClientRect();
+                        flyingHeart.style.left = `${rect.left}px`;
+                        flyingHeart.style.top = `${rect.top}px`;
+                        
+                        setTimeout(() => {
+                            flyingHeart.style.transform = "translateY(-50px)";
+                            flyingHeart.style.opacity = "0";
+                        }, 10);
+                        
+                        setTimeout(() => {
+                            document.body.removeChild(flyingHeart);
+                        }, 1000);
+                    }
+                }
+            });
+        }
+        
+        // Password modal functions
+        function openPasswordModal(id) {
+            currentCommentId = id;
+            document.getElementById("passwordModal").classList.add("active");
+            document.getElementById("adminPassword").focus();
+        }
+        
+        function closeModal() {
+            document.getElementById("passwordModal").classList.remove("active");
+            document.getElementById("adminPassword").value = "";
+            currentCommentId = null;
+        }
+        
+        function verifyPassword() {
+            const password = document.getElementById("adminPassword").value;
+            if (password === "Chamindu@2008") {
+                if (currentCommentId) {
+                    db.ref("comments/" + currentCommentId).remove();
+                    showMessage("Comment deleted successfully!", "success");
+                }
+                closeModal();
+            } else {
+                // Shake animation for wrong password
+                const modal = document.querySelector(".modal-content");
+                modal.style.animation = "shake 0.5s";
+                setTimeout(() => {
+                    modal.style.animation = "";
+                }, 500);
+                showMessage("Incorrect password!", "error");
+            }
+        }
+        
+        // Loading overlay functionality
+        const overlay = document.getElementById('loading-overlay');
+        
+        // Lock scroll while overlay visible
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+            overlay.style.animation = 'fadeOut 0.6s ease forwards';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                document.documentElement.style.overflow = '';
+                document.body.style.overflow = '';
+            }, 600);
+        }, 5000);
+        
+        // Mobile menu toggle
+        const menuBtn = document.querySelector('.menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Back to top button functionality
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopBtn.style.display = 'flex';
+                setTimeout(() => backToTopBtn.style.opacity = '1', 10);
+            } else {
+                backToTopBtn.style.opacity = '0';
+                setTimeout(() => backToTopBtn.style.display = 'none', 300);
+            }
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Create animated particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Random properties
+            const size = Math.random() * 10 + 2;
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            const delay = Math.random() * 15;
+            const duration = Math.random() * 10 + 10;
+            
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${posX}%`;
+            particle.style.top = `${posY}%`;
+            particle.style.animationDelay = `${delay}s`;
+            particle.style.animationDuration = `${duration}s`;
+            
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Add hover effect to pair cards
+        document.querySelectorAll('.pair-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-15px) rotate(2deg)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) rotate(0)';
+            });
+        });
+        
+        // Add shake animation for wrong password
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes shake {
+                0% { transform: translateX(0); }
+                25% { transform: translateX(-10px); }
+                50% { transform: translateX(10px); }
+                75% { transform: translateX(-10px); }
+                100% { transform: translateX(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
